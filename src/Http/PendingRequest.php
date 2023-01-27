@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Saloon\Http;
 
 use Saloon\Config;
+use Saloon\Contracts\Authenticator;
 use Saloon\Enums\Method;
 use Saloon\Helpers\Helpers;
 use Saloon\Contracts\Sender;
@@ -19,7 +20,6 @@ use Saloon\Contracts\Body\HasBody;
 use Saloon\Helpers\ReflectionHelper;
 use GuzzleHttp\Promise\PromiseInterface;
 use Saloon\Contracts\Body\BodyRepository;
-use Saloon\Traits\Auth\AuthenticatesRequests;
 use Saloon\Contracts\SimulatedResponsePayload;
 use Saloon\Exceptions\PendingRequestException;
 use Saloon\Http\Middleware\AuthenticateRequest;
@@ -32,7 +32,6 @@ use Saloon\Contracts\PendingRequest as PendingRequestContract;
 
 class PendingRequest implements PendingRequestContract
 {
-    use AuthenticatesRequests;
     use HasRequestProperties;
     use Conditionable;
     use HasMockClient;
@@ -92,6 +91,13 @@ class PendingRequest implements PendingRequestContract
      * @var bool
      */
     protected bool $asynchronous = false;
+
+    /**
+     * Authenticator
+     *
+     * @var \Saloon\Contracts\Authenticator|null
+     */
+    protected ?Authenticator $authenticator = null;
 
     /**
      * Build up the request payload.
@@ -486,5 +492,15 @@ class PendingRequest implements PendingRequestContract
     public function isAsynchronous(): bool
     {
         return $this->asynchronous;
+    }
+
+    /**
+     * Retrieve the authenticator.
+     *
+     * @return \Saloon\Contracts\Authenticator|null
+     */
+    public function getAuthenticator(): ?Authenticator
+    {
+        return $this->authenticator;
     }
 }
